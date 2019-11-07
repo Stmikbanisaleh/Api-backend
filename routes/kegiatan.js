@@ -1,6 +1,6 @@
 const express = require('express');
 const Joi = require('joi');
-const downloadSchema = require('../models/download_model');
+const kegiatanSchema = require('../models/kegiatan_model');
 const checkauth = require('../middleware/validation');
 
 const router = express.Router();
@@ -10,29 +10,31 @@ router.get('/', (req, res) => {
   res.render('index', { title: 'Expresssssss' });
 });
 
-router.post('/adddownload', checkauth, async (req, res) => {
+router.post('/addkegiatan', checkauth, async (req, res) => {
   const payload = Joi.object({
-    judul: Joi.string().required(),
-    nama_file: Joi.string().required(),
-    tgl_posting: Joi.string().required(),
-    hits: Joi.string().required(),
+    id_posisi: Joi.string().required(),
+    nama_kegiatan: Joi.string().required(),
+    tempat: Joi.date().required(),
+    gambar: Joi.string().required(),
+    tanggal: Joi.string().required(),
   });
   const schema = {
-    judul: req.body.judul,
-    nama_file: req.body.nama_file,
-    tgl_posting: req.body.tgl_posting,
-    hits: req.body.hits,
+    id_posisi: req.body.id_posisi,
+    nama_kegiatan: req.body.nama_kegiatan,
+    tempat: req.body.tempat,
+    gambar: req.body.gambar,
+    tanggal: req.body.tanggal,
   };
 
 
   try {
     Joi.validate(schema, payload, (error) => {
-      const sukses = downloadSchema.create(schema);
+      const sukses = kegiatanSchema.create(schema);
       if (sukses) {
         res.status(201).json({
           status: 200,
-          messages: 'Download berhasil ditambahkan',
-          data: downloadSchema,
+          messages: 'kegiatan berhasil ditambahkan',
+          data: kegiatanSchema,
         });
       }
       if (error) {

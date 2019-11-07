@@ -1,6 +1,6 @@
 const express = require('express');
 const Joi = require('joi');
-const downloadSchema = require('../models/download_model');
+const albumSchema = require('../models/album_model');
 const checkauth = require('../middleware/validation');
 
 const router = express.Router();
@@ -10,29 +10,29 @@ router.get('/', (req, res) => {
   res.render('index', { title: 'Expresssssss' });
 });
 
-router.post('/adddownload', checkauth, async (req, res) => {
+router.post('/addalbum', checkauth, async (req, res) => {
   const payload = Joi.object({
-    judul: Joi.string().required(),
-    nama_file: Joi.string().required(),
-    tgl_posting: Joi.string().required(),
-    hits: Joi.string().required(),
+    keterangan: Joi.string().required(),
+    gambar: Joi.string().required(),
+    tgl_posting: Joi.date().required(),
+    username: Joi.string().required(),
   });
   const schema = {
-    judul: req.body.judul,
-    nama_file: req.body.nama_file,
+    keterangan: req.body.keterangan,
+    gambar: req.body.gambar,
     tgl_posting: req.body.tgl_posting,
-    hits: req.body.hits,
+    username: req.body.username,
   };
 
 
   try {
     Joi.validate(schema, payload, (error) => {
-      const sukses = downloadSchema.create(schema);
+      const sukses = albumSchema.create(schema);
       if (sukses) {
         res.status(201).json({
           status: 200,
-          messages: 'Download berhasil ditambahkan',
-          data: downloadSchema,
+          messages: 'Album berhasil ditambahkan',
+          data: albumSchema,
         });
       }
       if (error) {

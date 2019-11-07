@@ -16,6 +16,11 @@ const  identitasModel = require('./models/identitas_model');
 const  linkModel = require('./models/link_model');
 const  aksescepatModel = require('./models/aksescepat_model');
 const  sopModel = require('./models/sop_model');
+const  downloadModel = require('./models/download_model');
+const  albumModel = require('./models/album_model');
+const  agendaModel = require('./models/agenda_model');
+const  kegiatanModel = require('./models/kegiatan_model');
+const  beritaModel = require('./models/berita_model');
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
@@ -25,6 +30,11 @@ const identitasRouter = require('./routes/identitas');
 const linkRouter = require('./routes/link');
 const aksescepatRouter = require('./routes/aksescepat');
 const sopRouter = require('./routes/sop');
+const downloadRouter = require('./routes/download');
+const albumRouter = require('./routes/album');
+const agendaRouter = require('./routes/agenda');
+const kegiatanRouter = require('./routes/kegiatan');
+const beritaRouter = require('./routes/berita');
 
 
 const app = express();
@@ -47,6 +57,11 @@ app.use('/identitas', identitasRouter);
 app.use('/link', linkRouter);
 app.use('/aksescepat', aksescepatRouter);
 app.use('/sop', sopRouter);
+app.use('/download', downloadRouter);
+app.use('/album', albumRouter);
+app.use('/agenda', agendaRouter);
+app.use('/kegiatan', kegiatanRouter);
+app.use('/berita', beritaRouter);
 
 
 // catch 404 and forward to error handler

@@ -1,35 +1,31 @@
 const Sequelize = require('sequelize');
 const sequelize = require('../lib/connection');
 
-const downloadmodel = sequelize.define('download', {
-  id_download: {
+const kegiatanmodel = sequelize.define('kegiatan', {
+  id_kegiatan: {
     type: Sequelize.INTEGER,
     primaryKey: true,
     autoIncrement: true,
     allowNull: false,
   },
-  judul: {
-    type: Sequelize.STRING,
-    allowNull: false,
-  },
-  nama_file: {
-    type: Sequelize.STRING,
-    allowNull: false,
-  },
-  publisher: {
-    type: Sequelize.STRING,
-    allowNull: true,
-  },
-  penulis: {
-    type: Sequelize.STRING,
-    allowNull: true,
-  },
-  tgl_posting: {
-    type: Sequelize.DATE,
-    allowNull: true,
-  },
-  hits: {
+  id_posisi: {
     type: Sequelize.INTEGER,
+    allowNull: false,
+  },
+  nama_kegiatan: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
+  tempat: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
+  tanggal: {
+    type: Sequelize.DATE,
+    allowNull: false,
+  },
+  gambar: {
+    type: Sequelize.STRING,
     allowNull: true,
   },
   createdAt: Sequelize.DATE,
@@ -39,7 +35,7 @@ const downloadmodel = sequelize.define('download', {
 });
 
 // force: true will drop the table if it already exists
-downloadmodel.sync({ force: false }).then(() => {
+kegiatanmodel.sync({ force: false }).then(() => {
 // Table created
 // return mspaten.create({
 //     name: 'admin',
@@ -47,4 +43,4 @@ downloadmodel.sync({ force: false }).then(() => {
 //     email : 'imamsatrianta@gmail.com'
 // });
 });
-module.exports = downloadmodel;
+module.exports = kegiatanmodel;
