@@ -11,10 +11,12 @@ const Sequelize = require('sequelize');
 // eslint-disable-next-line no-unused-vars
 const  halamanModel = require('./models/halaman_model');
 const  userModel = require('./models/user_model');
+const  menuModel = require('./models/menu_model');
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const halamanRouter = require('./routes/halaman');
+const menuRouter = require('./routes/menu');
 
 
 const app = express();
@@ -32,6 +34,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/halaman', halamanRouter);
+app.use('/menu', menuRouter);
 
 
 // catch 404 and forward to error handler
