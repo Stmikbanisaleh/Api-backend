@@ -1,34 +1,30 @@
 const Sequelize = require('sequelize');
 const sequelize = require('../lib/connection');
 
-const downloadmodel = sequelize.define('download', {
-  id_download: {
+const agendamodel = sequelize.define('agenda', {
+  id_agenda: {
     type: Sequelize.INTEGER,
     primaryKey: true,
     autoIncrement: true,
     allowNull: false,
   },
-  judul: {
-    type: Sequelize.STRING,
-    allowNull: false,
-  },
-  nama_file: {
-    type: Sequelize.STRING,
-    allowNull: false,
-  },
-  publisher: {
-    type: Sequelize.STRING,
-    allowNull: true,
-  },
-  penulis: {
-    type: Sequelize.STRING,
-    allowNull: true,
-  },
-  tgl_posting: {
+  tanggal_awal: {
     type: Sequelize.DATE,
-    allowNull: true,
+    allowNull: false,
   },
-  hits: {
+  tanggal_akhir: {
+    type: Sequelize.DATE,
+    allowNull: false,
+  },
+  nama_agenda: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
+  keterangan: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
+  foto: {
     type: Sequelize.INTEGER,
     allowNull: true,
   },
@@ -39,7 +35,7 @@ const downloadmodel = sequelize.define('download', {
 });
 
 // force: true will drop the table if it already exists
-downloadmodel.sync({ force: false }).then(() => {
+agendamodel.sync({ force: false }).then(() => {
 // Table created
 // return mspaten.create({
 //     name: 'admin',
@@ -47,4 +43,4 @@ downloadmodel.sync({ force: false }).then(() => {
 //     email : 'imamsatrianta@gmail.com'
 // });
 });
-module.exports = downloadmodel;
+module.exports = agendamodel;

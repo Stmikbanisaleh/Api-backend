@@ -1,36 +1,52 @@
 const Sequelize = require('sequelize');
 const sequelize = require('../lib/connection');
 
-const downloadmodel = sequelize.define('download', {
-  id_download: {
+const albummodel = sequelize.define('album', {
+  id_album: {
     type: Sequelize.INTEGER,
     primaryKey: true,
     autoIncrement: true,
     allowNull: false,
   },
-  judul: {
-    type: Sequelize.STRING,
-    allowNull: false,
-  },
-  nama_file: {
-    type: Sequelize.STRING,
-    allowNull: false,
-  },
-  publisher: {
-    type: Sequelize.STRING,
+  judul_album: {
+    type: Sequelize.INTEGER,
     allowNull: true,
   },
-  penulis: {
+  album_seo: {
+    type: Sequelize.INTEGER,
+    allowNull: true,
+  },
+  keterangan: {
     type: Sequelize.STRING,
+    allowNull: false,
+  },
+  gambar: {
+    type: Sequelize.STRING,
+    allowNull: false,
+  },
+  aktif: {
+    type: Sequelize.INTEGER,
+    allowNull: true,
+  },
+  hits_album: {
+    type: Sequelize.INTEGER,
     allowNull: true,
   },
   tgl_posting: {
-    type: Sequelize.DATE,
-    allowNull: true,
+    type: Sequelize.INTEGER,
+    allowNull: false,
   },
-  hits: {
+  jam: {
     type: Sequelize.INTEGER,
     allowNull: true,
+  },
+  hari: {
+    type: Sequelize.INTEGER,
+    allowNull: true,
+  },
+  username: {
+    type: Sequelize.INTEGER,
+    allowNull: false,
   },
   createdAt: Sequelize.DATE,
   updatedAt: Sequelize.DATE,
@@ -39,7 +55,7 @@ const downloadmodel = sequelize.define('download', {
 });
 
 // force: true will drop the table if it already exists
-downloadmodel.sync({ force: false }).then(() => {
+albummodel.sync({ force: false }).then(() => {
 // Table created
 // return mspaten.create({
 //     name: 'admin',
@@ -47,4 +63,4 @@ downloadmodel.sync({ force: false }).then(() => {
 //     email : 'imamsatrianta@gmail.com'
 // });
 });
-module.exports = downloadmodel;
+module.exports = albummodel;
