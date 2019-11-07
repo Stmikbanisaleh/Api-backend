@@ -12,11 +12,13 @@ const Sequelize = require('sequelize');
 const  halamanModel = require('./models/halaman_model');
 const  userModel = require('./models/user_model');
 const  menuModel = require('./models/menu_model');
+const  identitasModel = require('./models/identitas_model');
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const halamanRouter = require('./routes/halaman');
 const menuRouter = require('./routes/menu');
+const identitasRouter = require('./routes/identitas');
 
 
 const app = express();
@@ -35,6 +37,7 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/halaman', halamanRouter);
 app.use('/menu', menuRouter);
+app.use('/identitas', identitasRouter);
 
 
 // catch 404 and forward to error handler
