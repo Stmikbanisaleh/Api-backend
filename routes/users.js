@@ -1,88 +1,56 @@
+/* eslint-disable max-len */
+/* eslint-disable object-shorthand */
 /* eslint-disable prefer-arrow-callback */
 /* eslint-disable func-names */
+/* eslint-disable-next-line object-shorthand */
+
 require('dotenv').config();
 const express = require('express');
 const Joi = require('joi');
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
-const UserSchema = require('../models/user_model');
 
+const { gettoken, register } = require('../lib/gateway');
 
 // const axios = require('axios');
 
 const router = express.Router();
 
+// eslint-disable-next-line arrow-body-style
 /* GET users listing. */
 router.post('/login', (req, res) => {
-  const validate = Joi.object().keys({
-    email: Joi.string().required(),
-    password: Joi.string().required(),
-  });
-  const payload = {
-    email: req.body.email,
-    password: req.body.password,
-  };
+  try {
+    const validate = Joi.object().keys({
+      email: Joi.string().required(),
+      password: Joi.string().required(),
+    });
 
-  Joi.validate(payload, validate, (error) => {
-    bcrypt.hash(payload.password, 10, function (err, hash) {
-      // Store hash in your password DB.
-      UserSchema.sequelize.query(`SELECT a.password,a.id,a.name, a.email, a.image, a.role_id, a.is_active,b.nama_rev,b.status,b.keterangan,golongan from msuser a join msrev b on a.role_id = b.id where a.email = "${req.body.email}"`,
-        { replacements: { status: 'active', type: UserSchema.sequelize.QueryTypes.SELECT } })
-        .then((user) => {
-          if (user[0].length < 1) {
-            res.status(401).json({
-              message: 'Email atau Password Salah !!!',
-            });
-          } else {
-            const users = user[0];
-            bcrypt.compare(payload.password, users[0].password, function (errors, match) {
-              // console.log(users[0].password);
-              if (match) {
-                const token = jwt.sign({ email: users[0].email, role: users[0].role_id, is_active: users[0].is_active }, process.env.JWTKU, {
-                  expiresIn: '30d',
-                });
-                res.status(200).json({
-                  message: 'Success',
-                  status: 200,
-                  user_id: users[0].id,
-                  email: users[0].email,
-                  role: users[0].role_id,
-                  is_active: users[0].is_active,
-                  name: users[0].name,
-                  image: users[0].image,
-                  nama_rev: users[0].nama_rev,
-                  status_rev: users[0].status,
-                  keterangan: users[0].keterangan,
-                  golongan: users[0].golongan,
-                  token,
-                });
-              } else {
-                res.status(403).json({
-                  errors,
-                  message: 'Email atau Password Salah !!!',
-                  status: 403,
-                });
-              }
-            });
-          }
-        })
-        .catch((err) => {
-          res.status(500).json({
-            error: err,
-            status: 500,
-          });
+    const payload = {
+      email: req.body.email,
+      password: req.body.password,
+    };
+
+    Joi.validate(validate, payload, async () => {
+      try {
+        const data = await gettoken(req.body.email, req.body.password);
+        res.status(200).json({
+          error: false,
+          data: data,
         });
-      if (error) {
+      } catch (error) {
         res.status(400).json({
-          message: ' Required',
-          error,
+          status: 500,
+          messages: error,
         });
       }
     });
-  });
+  } catch (error) {
+    res.status(500).json({
+      error,
+      status: 500,
+    });
+  }
 });
 
-router.post('/register', async function (req, res, next) {
+router.post('/register', async function (req, res) {
   const validate = Joi.object().keys({
     email: Joi.string().required(),
     password: Joi.string().required(),
@@ -97,59 +65,18 @@ router.post('/register', async function (req, res, next) {
     role_id: req.body.role_id,
   };
 
-  Joi.validate(payload, validate, (error) => {
+  Joi.validate(payload, validate, async () => {
     try {
-      const {
-        name,
-        email,
-        password,
-        role_id,
-        is_active,
-      } = req.body;
-
-      bcrypt.hash(password, 10, async function (err, hash) {
-        // Store hash in your password DB.
-        const cek = UserSchema.findAll({
-          where: {
-            email: req.body.email,
-          },
-        });
-        if (cek.length > 0) {
-          res.status(401).json({
-            status: 401,
-            messages: 'Email Already Exist',
-          });
-        } else {
-          const users = await UserSchema.create({
-            name,
-            email,
-            password: hash,
-            role_id: req.body.role_id,
-            is_active: 3,
-          });
-          if (users) {
-            res.status(201).json({
-              status: 200,
-              messages: 'User berhasil ditambahkan',
-              data: users,
-            });
-          }
-        }
+      const data = await register(req.body.email, req.body.password, req.body.name, req.body.role_id);
+      res.status(200).json({
+        response: data,
       });
     } catch (error) {
       res.status(400).json({
-        status: 'ERROR',
-        messages: error.message,
-        data: {},
+        status: 500,
+        messages: error,
       });
     }
-    if (error) {
-      res.status(400).json({
-        status: 'Required',
-        messages: error.message,
-        data: {},
-      });
-    }
-  },);
+  });
 });
 module.exports = router;

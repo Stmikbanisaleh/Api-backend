@@ -23,29 +23,28 @@ router.post('/addsop', checkauth, async (req, res) => {
     nama_file: req.body.nama_file,
     tgl_posting: req.body.tgl_posting,
   };
-
-
   try {
-    Joi.validate(schema, payload, (error) => {
-      const sukses = sopSchema.create(schema);
-      if (sukses) {
-        res.status(201).json({
+    Joi.validate(schema, payload, () => {
+      sopSchema.create({
+        judul: req.body.judul,
+        nama_judul: req.body.nama_judul,
+        nama_file: req.body.nama_file,
+        tgl_posting: req.body.tgl_posting,
+      }).then((data) => {
+        res.json({
           status: 200,
-          messages: 'Sop berhasil ditambahkan',
-          data: sopSchema,
+          data,
+          message: 'SOP berhasil ditambahkan',
         });
-      }
-      if (error) {
-        res.status(422).json({
+      }).catch((error) => {
+        res.status(500).json({
           error: error.message,
         });
-      }
+      });
     });
   } catch (error) {
-    res.status(400).json({
-      status: 'ERROR',
-      messages: error.message,
-      data: {},
+    res.status(500).json({
+      error,
     });
   }
 });

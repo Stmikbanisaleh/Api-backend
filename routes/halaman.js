@@ -1,7 +1,10 @@
 const express = require('express');
 const Joi = require('joi');
+const fs = require('fs');
+const moment = require('moment');
 const halamanSchema = require('../models/halaman_model');
 const checkauth = require('../middleware/validation');
+
 
 const router = express.Router();
 
@@ -11,6 +14,13 @@ router.get('/', (req, res) => {
 });
 
 router.post('/addhalaman', checkauth, async (req, res) => {
+  const date = new Date();
+  const name = moment(date).format('hhmmiiss');
+  const base64Data = req.body.gambar_base64;
+  const type = req.body.gambar_type;
+  fs.writeFileSync(`./public/file/${req.body.gambar}${name}${type}`, base64Data, 'base64', () => {
+  });
+
   const payload = Joi.object({
     judul: Joi.string().required(),
     judul_seo: Joi.string().required(),
