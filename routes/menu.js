@@ -29,30 +29,35 @@ router.post('/addmenu', checkauth, async (req, res) => {
     urutan: req.body.urutan,
   };
 
+try {
+  Joi.validate(schema, payload, () => {
+    menuSchema.create({
+      id_posisi: req.body.id_posisi,
+      id_parent: req.body.id_parent,
+      nama_menu: req.body.nama_menu,
+      punya_sub: req.body.punya_sub,
+      link: req.body.link,
+      status_aktif: req.body.status_aktif,
+      urutan: req.body.urutan,
+    }).then((data) => {
+      res.json({
+        status: 200,
+        data,
+        message: 'Menu berhasil ditambahkan',
+      });
+    }).catch((error) => {
+      res.status(500).json({
+        status: 500,
+        error: error.message,
+      });
+    });
+  });
+} catch (error) {
+  res.status(500).json({
+    error,
+  });
+}
 
-  try {
-    Joi.validate(schema, payload, (error) => {
-      const sukses = menuSchema.create(schema);
-      if (sukses) {
-        res.status(201).json({
-          status: 200,
-          messages: 'Menu berhasil ditambahkan',
-          data: menuSchema,
-        });
-      }
-      if (error) {
-        res.status(422).json({
-          error: error.message,
-        });
-      }
-    });
-  } catch (error) {
-    res.status(400).json({
-      status: 'ERROR',
-      messages: error.message,
-      data: {},
-    });
-  }
 });
 
 module.exports = router;

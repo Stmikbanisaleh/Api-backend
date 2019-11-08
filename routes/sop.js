@@ -38,6 +38,7 @@ router.post('/addsop', checkauth, async (req, res) => {
         });
       }).catch((error) => {
         res.status(500).json({
+          status: 500,
           error: error.message,
         });
       });

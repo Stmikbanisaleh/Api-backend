@@ -28,28 +28,32 @@ router.post('/addkegiatan', checkauth, async (req, res) => {
 
 
   try {
-    Joi.validate(schema, payload, (error) => {
-      const sukses = kegiatanSchema.create(schema);
-      if (sukses) {
-        res.status(201).json({
+    Joi.validate(schema, payload, () => {
+      kegiatanSchema.create({
+      id_posisi: req.body.id_posisi,
+      nama_kegiatan: req.body.nama_kegiatan,
+      tempat: req.body.tempat,
+      gambar: req.body.gambar,
+      tanggal: req.body.tanggal,
+      }).then((data) => {
+        res.json({
           status: 200,
-          messages: 'kegiatan berhasil ditambahkan',
-          data: kegiatanSchema,
+          data,
+          message: 'Menu berhasil ditambahkan',
         });
-      }
-      if (error) {
-        res.status(422).json({
+      }).catch((error) => {
+        res.status(500).json({
+          status: 500,
           error: error.message,
         });
-      }
+      });
     });
   } catch (error) {
-    res.status(400).json({
-      status: 'ERROR',
-      messages: error.message,
-      data: {},
+    res.status(500).json({
+      error,
     });
   }
+
 });
 
 module.exports = router;

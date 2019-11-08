@@ -26,28 +26,31 @@ router.post('/addlink', checkauth, async (req, res) => {
 
 
   try {
-    Joi.validate(schema, payload, (error) => {
-      const sukses = linkSchema.create(schema);
-      if (sukses) {
-        res.status(201).json({
+    Joi.validate(schema, payload, () => {
+      linkSchema.create({
+        kategori: req.body.kategori,
+        nama_link: req.body.nama_link,
+        url_web: req.body.url_web,
+        logo: req.body.logo,
+      }).then((data) => {
+        res.json({
           status: 200,
-          messages: 'Link berhasil ditambahkan',
-          data: linkSchema,
+          data,
+          message: 'Menu berhasil ditambahkan',
         });
-      }
-      if (error) {
-        res.status(422).json({
+      }).catch((error) => {
+        res.status(500).json({
+          status: 500,
           error: error.message,
         });
-      }
+      });
     });
   } catch (error) {
-    res.status(400).json({
-      status: 'ERROR',
-      messages: error.message,
-      data: {},
+    res.status(500).json({
+      error,
     });
   }
+
 });
 
 module.exports = router;

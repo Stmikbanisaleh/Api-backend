@@ -28,28 +28,32 @@ router.post('/addagenda', checkauth, async (req, res) => {
 
 
   try {
-    Joi.validate(schema, payload, (error) => {
-      const sukses = agendaSchema.create(schema);
-      if (sukses) {
-        res.status(201).json({
+    Joi.validate(schema, payload, () => {
+      agendaSchema.create({
+        tanggal_awal: req.body.tanggal_awal,
+        tanggal_akhir: req.body.tanggal_akhir,
+        nama_agenda: req.body.nama_agenda,
+        keterangan: req.body.keterangan,
+        foto: req.body.foto,
+      }).then((data) => {
+        res.json({
           status: 200,
-          messages: 'Agenda berhasil ditambahkan',
-          data: agendaSchema,
+          data,
+          message: 'Menu berhasil ditambahkan',
         });
-      }
-      if (error) {
-        res.status(422).json({
+      }).catch((error) => {
+        res.status(500).json({
+          status: 500,
           error: error.message,
         });
-      }
+      });
     });
   } catch (error) {
-    res.status(400).json({
-      status: 'ERROR',
-      messages: error.message,
-      data: {},
+    res.status(500).json({
+      error,
     });
   }
+
 });
 
 module.exports = router;

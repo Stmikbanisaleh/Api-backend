@@ -40,28 +40,33 @@ router.post('/addhalaman', checkauth, async (req, res) => {
 
 
   try {
-    Joi.validate(schema, payload, (error) => {
-      const sukses = halamanSchema.create(schema);
-      if (sukses) {
-        res.status(201).json({
+    Joi.validate(schema, payload, () => {
+      halamanSchema.create({
+        judul: req.body.judul,
+        judul_seo: req.body.judul_seo,
+        isi_halaman: req.body.isi_halaman,
+        tgl_posting: req.body.tgl_posting,
+        gambar: req.body.gambar,
+        username: req.body.username,
+      }).then((data) => {
+        res.json({
           status: 200,
-          messages: 'Halaman berhasil ditambahkan',
-          data: halamanSchema,
+          data,
+          message: 'Menu berhasil ditambahkan',
         });
-      }
-      if (error) {
-        res.status(422).json({
+      }).catch((error) => {
+        res.status(500).json({
+          status: 500,
           error: error.message,
         });
-      }
+      });
     });
   } catch (error) {
-    res.status(400).json({
-      status: 'ERROR',
-      messages: error.message,
-      data: {},
+    res.status(500).json({
+      error,
     });
   }
+
 });
 
 module.exports = router;

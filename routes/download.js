@@ -26,28 +26,31 @@ router.post('/adddownload', checkauth, async (req, res) => {
 
 
   try {
-    Joi.validate(schema, payload, (error) => {
-      const sukses = downloadSchema.create(schema);
-      if (sukses) {
-        res.status(201).json({
+    Joi.validate(schema, payload, () => {
+      downloadSchema.create({
+        judul: req.body.judul,
+        nama_file: req.body.nama_file,
+        tgl_posting: req.body.tgl_posting,
+        hits: req.body.hits,
+      }).then((data) => {
+        res.json({
           status: 200,
-          messages: 'Download berhasil ditambahkan',
-          data: downloadSchema,
+          data,
+          message: 'Menu berhasil ditambahkan',
         });
-      }
-      if (error) {
-        res.status(422).json({
+      }).catch((error) => {
+        res.status(500).json({
+          status: 500,
           error: error.message,
         });
-      }
+      });
     });
   } catch (error) {
-    res.status(400).json({
-      status: 'ERROR',
-      messages: error.message,
-      data: {},
+    res.status(500).json({
+      error,
     });
   }
+
 });
 
 module.exports = router;
