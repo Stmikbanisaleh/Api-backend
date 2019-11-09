@@ -29,22 +29,27 @@ router.post('/addmenu', checkauth, async (req, res) => {
     urutan: req.body.urutan,
   };
 
-
   try {
-    Joi.validate(schema, payload, (error) => {
-      const sukses = menuSchema.create(schema);
-      if (sukses) {
+    Joi.validate(schema, payload, () => {
+      menuSchema.create({
+        id_posisi: req.body.id_posisi,
+        id_parent: req.body.id_parent,
+        nama_menu: req.body.nama_menu,
+        punya_sub: req.body.punya_sub,
+        link: req.body.link,
+        status_aktif: req.body.status_aktif,
+        urutan: req.body.urutan,
+      }).then((response) => {
         res.status(201).json({
           status: 200,
           messages: 'Menu berhasil ditambahkan',
-          data: menuSchema,
+          data: response,
         });
-      }
-      if (error) {
+      }).catch((e) => {
         res.status(422).json({
-          error: error.message,
+          error: e.message,
         });
-      }
+      });
     });
   } catch (error) {
     res.status(400).json({
@@ -53,6 +58,31 @@ router.post('/addmenu', checkauth, async (req, res) => {
       data: {},
     });
   }
+});
+
+router.post('/getmenu', checkauth, (req, res) => {
+  menuSchema.sequelize.query('SELECT `menu`.*, `posisi`.`nama_web` FROM `menu` '
+    + 'JOIN `posisi` ON `menu`.`id_posisi` = `posisi`.`id_posisi`').then((response) => {
+      res.status(200).json(response);
+    }).catch((e) => {
+      res.status(500).json(e);
+    });
+});
+
+router.post('/getparentmenu', checkauth, (req, res) => {
+  menuSchema.sequelize.query('SELECT id_menu,nama_menu FROM menu').then((response) => {
+    res.status(200).json(response);
+  }).catch((e) => {
+    res.status(500).json(e);
+  });
+});
+
+router.post('/getposisi', checkauth, (req, res) => {
+  menuSchema.sequelize.query('SELECT * FROM posisi').then((response) => {
+    res.status(200).json(response);
+  }).catch((e) => {
+    res.status(500).json(e);
+  });
 });
 
 module.exports = router;

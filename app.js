@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 /* eslint-disable no-multi-spaces */
 require('dotenv').config();
 const createError = require('http-errors');
@@ -22,6 +23,7 @@ const  agendaModel = require('./models/agenda_model');
 const  kegiatanModel = require('./models/kegiatan_model');
 const  beritaModel = require('./models/berita_model');
 
+
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
 const halamanRouter = require('./routes/halaman');
@@ -35,6 +37,7 @@ const albumRouter = require('./routes/album');
 const agendaRouter = require('./routes/agenda');
 const kegiatanRouter = require('./routes/kegiatan');
 const beritaRouter = require('./routes/berita');
+const dashboardRouter = require('./routes/dashboard');
 
 
 const app = express();
@@ -62,6 +65,7 @@ app.use('/album', albumRouter);
 app.use('/agenda', agendaRouter);
 app.use('/kegiatan', kegiatanRouter);
 app.use('/berita', beritaRouter);
+app.use('/dashboard', dashboardRouter);
 
 
 // catch 404 and forward to error handler
