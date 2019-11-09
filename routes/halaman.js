@@ -65,39 +65,46 @@ router.post('/addhalaman', checkauth, async (req, res) => {
       error,
     });
   }
-
 });
 
 router.post('/deletehalaman', checkauth, async (req, res) => {
-  let validate = Joi.object().keys({
+  const validate = Joi.object().keys({
     id_halaman: Joi.number().required(),
   });
 
   const payload = {
     id_halaman: req.body.id_halaman,
-  }
+  };
 
   Joi.validate(payload, validate, (error) => {
     halamanSchema.destroy({
       where: {
         id_halaman: req.body.id_halaman,
-      }
+      },
     })
-      .then((data) => {
-          res.status(200).json(
-            {
-              status: 200,
-              message: 'Delete Succesfully'
-            }
-          )
-      })
+      .then(() => {
+        res.status(200).json(
+          {
+            status: 200,
+            message: 'Delete Succesfully',
+          },
+        );
+      });
     if (error) {
       res.status(400).json({
-        'status': 'Required',
-        'messages': error.message,
-      })
+        status: 'Required',
+        messages: error.message,
+      });
     }
   });
-})
+});
+
+router.post('/gethalaman', checkauth, (req, res) => {
+  halamanSchema.findAndCountAll().then((response) => {
+    res.status(200).json(response);
+  }).catch((e) => {
+    res.status(500).json(e);
+  });
+});
 
 module.exports = router;
