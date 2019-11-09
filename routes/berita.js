@@ -11,6 +11,14 @@ router.get('/', (req, res) => {
 });
 
 router.post('/addberita', checkauth, async (req, res) => {
+  const date = new Date();
+  const name = moment(date).format('hhmmiiss');
+  const base64Data = req.body.gambar_base64;
+  const type = req.body.gambar_type;
+  fs.writeFileSync(`./public/file/${req.body.gambar}${name}${type}`, base64Data, 'base64', () => {
+  });
+
+  
   const payload = Joi.object({
     username: Joi.string().required(),
     id_posisi: Joi.string().required(),

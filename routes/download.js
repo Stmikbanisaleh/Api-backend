@@ -11,6 +11,14 @@ router.get('/', (req, res) => {
 });
 
 router.post('/adddownload', checkauth, async (req, res) => {
+  const date = new Date();
+  const name = moment(date).format('hhmmiiss');
+  const base64Data = req.body.file_base64;
+  const type = req.body.file_type;
+  fs.writeFileSync(`./public/file/${req.body.file}${name}${type}`, base64Data, 'base64', () => {
+  });
+
+
   const payload = Joi.object({
     judul: Joi.string().required(),
     nama_file: Joi.string().required(),
