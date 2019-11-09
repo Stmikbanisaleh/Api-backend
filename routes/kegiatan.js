@@ -1,5 +1,7 @@
 const express = require('express');
 const Joi = require('joi');
+const moment = require('moment');
+const fs = require('fs');
 const kegiatanSchema = require('../models/kegiatan_model');
 const checkauth = require('../middleware/validation');
 
@@ -15,6 +17,7 @@ router.post('/addkegiatan', checkauth, async (req, res) => {
   const name = moment(date).format('hhmmiiss');
   const base64Data = req.body.gambar_base64;
   const type = req.body.gambar_type;
+  const name_file = `${req.body.gambar}${name}${type}`;
   fs.writeFileSync(`./public/file/${req.body.gambar}${name}${type}`, base64Data, 'base64', () => {
   });
 
@@ -23,14 +26,12 @@ router.post('/addkegiatan', checkauth, async (req, res) => {
     id_posisi: Joi.string().required(),
     nama_kegiatan: Joi.string().required(),
     tempat: Joi.date().required(),
-    gambar: Joi.string().required(),
     tanggal: Joi.string().required(),
   });
   const schema = {
     id_posisi: req.body.id_posisi,
     nama_kegiatan: req.body.nama_kegiatan,
     tempat: req.body.tempat,
-    gambar: req.body.gambar,
     tanggal: req.body.tanggal,
   };
 
@@ -41,7 +42,7 @@ router.post('/addkegiatan', checkauth, async (req, res) => {
       id_posisi: req.body.id_posisi,
       nama_kegiatan: req.body.nama_kegiatan,
       tempat: req.body.tempat,
-      gambar: req.body.gambar,
+      gambar: name_file,
       tanggal: req.body.tanggal,
       }).then((data) => {
         res.json({

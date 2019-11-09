@@ -1,5 +1,7 @@
 const express = require('express');
 const Joi = require('joi');
+const moment = require('moment');
+const fs = require('fs');
 const albumSchema = require('../models/album_model');
 const checkauth = require('../middleware/validation');
 
@@ -15,19 +17,18 @@ router.post('/addalbum', checkauth, async (req, res) => {
   const name = moment(date).format('hhmmiiss');
   const base64Data = req.body.gambar_base64;
   const type = req.body.gambar_type;
+  const name_file = `${req.body.gambar}${name}${type}`;
   fs.writeFileSync(`./public/file/${req.body.gambar}${name}${type}`, base64Data, 'base64', () => {
   });
 
   
   const payload = Joi.object({
     keterangan: Joi.string().required(),
-    gambar: Joi.string().required(),
     tgl_posting: Joi.date().required(),
     username: Joi.string().required(),
   });
   const schema = {
     keterangan: req.body.keterangan,
-    gambar: req.body.gambar,
     tgl_posting: req.body.tgl_posting,
     username: req.body.username,
   };
@@ -37,7 +38,7 @@ router.post('/addalbum', checkauth, async (req, res) => {
     Joi.validate(schema, payload, () => {
       albumSchema.create({
         keterangan: req.body.keterangan,
-        gambar: req.body.gambar,
+        gambar: name_file,
         tgl_posting: req.body.tgl_posting,
         username: req.body.username,
       }).then((data) => {

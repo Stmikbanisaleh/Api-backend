@@ -1,5 +1,7 @@
 const express = require('express');
 const Joi = require('joi');
+const moment = require('moment');
+const fs = require('fs');
 const beritaSchema = require('../models/berita_model');
 const checkauth = require('../middleware/validation');
 
@@ -11,12 +13,14 @@ router.get('/', (req, res) => {
 });
 
 router.post('/addberita', checkauth, async (req, res) => {
-  const date = new Date();
-  const name = moment(date).format('hhmmiiss');
-  const base64Data = req.body.gambar_base64;
-  const type = req.body.gambar_type;
-  fs.writeFileSync(`./public/file/${req.body.gambar}${name}${type}`, base64Data, 'base64', () => {
-  });
+    const date = new Date();
+    const name = moment(date).format('hhmmiiss');
+    const base64Data = req.body.gambar_base64;
+    const type = req.body.gambar_type;
+    const name_file = `${req.body.gambar}${name}${type}`;
+    fs.writeFileSync(`./public/file/${req.body.gambar}${name}${type}`, base64Data, 'base64', () => {
+    });
+ 
 
   
   const payload = Joi.object({
@@ -27,7 +31,6 @@ router.post('/addberita', checkauth, async (req, res) => {
     youtube: Joi.string().required(),
     judul_seo: Joi.string().required(),
     isi_berita: Joi.string().required(),
-    gambar: Joi.string().required(),
     keterangan_gambar: Joi.string().required(),
     tanggal: Joi.string().required(),
   });
@@ -39,7 +42,6 @@ router.post('/addberita', checkauth, async (req, res) => {
     youtube: req.body.youtube,
     judul_seo: req.body.judul_seo,
     isi_berita: req.body.isi_berita,
-    gambar: req.body.gambar,
     keterangan_gambar: req.body.keterangan_gambar,
     tanggal: req.body.tanggal,
   };
@@ -55,7 +57,7 @@ router.post('/addberita', checkauth, async (req, res) => {
         youtube: req.body.youtube,
         judul_seo: req.body.judul_seo,
         isi_berita: req.body.isi_berita,
-        gambar: req.body.gambar,
+        gambar: name_file,
         keterangan_gambar: req.body.keterangan_gambar,
         tanggal: req.body.tanggal,
       }).then((data) => {

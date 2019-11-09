@@ -1,5 +1,7 @@
 const express = require('express');
 const Joi = require('joi');
+const moment = require('moment');
+const fs = require('fs');
 const downloadSchema = require('../models/download_model');
 const checkauth = require('../middleware/validation');
 
@@ -15,19 +17,18 @@ router.post('/adddownload', checkauth, async (req, res) => {
   const name = moment(date).format('hhmmiiss');
   const base64Data = req.body.file_base64;
   const type = req.body.file_type;
-  fs.writeFileSync(`./public/file/${req.body.file}${name}${type}`, base64Data, 'base64', () => {
+  const name_file = `${req.body.nama_file}${name}${type}`;
+  fs.writeFileSync(`./public/file/${req.body.nama_file}${name}${type}`, base64Data, 'base64', () => {
   });
 
 
   const payload = Joi.object({
     judul: Joi.string().required(),
-    nama_file: Joi.string().required(),
     tgl_posting: Joi.string().required(),
     hits: Joi.string().required(),
   });
   const schema = {
     judul: req.body.judul,
-    nama_file: req.body.nama_file,
     tgl_posting: req.body.tgl_posting,
     hits: req.body.hits,
   };
@@ -37,7 +38,7 @@ router.post('/adddownload', checkauth, async (req, res) => {
     Joi.validate(schema, payload, () => {
       downloadSchema.create({
         judul: req.body.judul,
-        nama_file: req.body.nama_file,
+        nama_file: name_file,
         tgl_posting: req.body.tgl_posting,
         hits: req.body.hits,
       }).then((data) => {
