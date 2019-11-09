@@ -77,32 +77,62 @@ router.post('/getposisi', checkauth, (req, res) => {
   });
 });
 
-router.post('/getmenubyid', checkauth, function (req, res) {
+router.post('/getmenubyid', checkauth, (req, res) => {
   menuSchema.findAndCountAll({
     where: {
-      id_menu: req.body.id_menu
-    }
+      id_menu: req.body.id_menu,
+    },
   })
     .then((data) => {
       if (data.length < 1) {
         res.status(404).json({
           message: 'Not Found',
         });
-      }
-      else {
+      } else {
         res.status(200).json({
-          data
-        })
+          data,
+        });
       }
       // });x
     })
     .catch((err) => {
-      console.log(err);
       res.status(500).json({
         error: err,
-        status: 500
+        status: 500,
       });
     });
+});
+
+router.post('/deletemenu', checkauth, async (req, res) => {
+  const validate = Joi.object().keys({
+    id_menu: Joi.number().required(),
+  });
+
+  const payload = {
+    id_menu: req.body.id_menu,
+  };
+
+  Joi.validate(payload, validate, (error) => {
+    menuSchema.destroy({
+      where: {
+        id_menu: req.body.id_menu,
+      },
+    })
+      .then(() => {
+        res.status(200).json(
+          {
+            status: 200,
+            message: 'Delete Succesfully',
+          },
+        );
+      });
+    if (error) {
+      res.status(400).json({
+        status: 'Required',
+        messages: error.message,
+      });
+    }
+  });
 });
 
 module.exports = router;
