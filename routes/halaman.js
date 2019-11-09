@@ -34,7 +34,7 @@ router.post('/addhalaman', checkauth, async (req, res) => {
     judul_seo: req.body.judul_seo,
     isi_halaman: req.body.isi_halaman,
     tgl_posting: req.body.tgl_posting,
-    username: name_file,
+    username: req.body.username,
   };
 
 
@@ -45,8 +45,8 @@ router.post('/addhalaman', checkauth, async (req, res) => {
         judul_seo: req.body.judul_seo,
         isi_halaman: req.body.isi_halaman,
         tgl_posting: req.body.tgl_posting,
-        gambar: req.body.gambar,
-        username: name_file,
+        gambar: name_file,
+        username: req.body.username,
       }).then((data) => {
         res.json({
           status: 200,

@@ -77,4 +77,32 @@ router.post('/getposisi', checkauth, (req, res) => {
   });
 });
 
+router.post('/getmenubyid', checkauth, function (req, res) {
+  menuSchema.findAndCountAll({
+    where: {
+      id_menu: req.body.id_menu
+    }
+  })
+    .then((data) => {
+      if (data.length < 1) {
+        res.status(404).json({
+          message: 'Not Found',
+        });
+      }
+      else {
+        res.status(200).json({
+          data
+        })
+      }
+      // });x
+    })
+    .catch((err) => {
+      console.log(err);
+      res.status(500).json({
+        error: err,
+        status: 500
+      });
+    });
+});
+
 module.exports = router;
