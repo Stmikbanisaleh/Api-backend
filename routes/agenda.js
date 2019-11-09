@@ -18,22 +18,20 @@ router.post('/addagenda', checkauth, async (req, res) => {
   const base64Data = req.body.gambar_base64;
   const type = req.body.gambar_type;
   const name_file = `${req.body.foto}${name}${type}`;
-  fs.writeFileSync(`./public/file/${req.body.gambar}${name}${type}`, base64Data, 'base64', () => {
+  fs.writeFileSync(`./public/file/${req.body.foto}${name}${type}`, base64Data, 'base64', () => {
   });
-  
+
   const payload = Joi.object({
     tanggal_awal: Joi.string().required(),
     tanggal_akhir: Joi.string().required(),
     nama_agenda: Joi.date().required(),
     keterangan: Joi.string().required(),
-    foto: Joi.string().required(),
   });
   const schema = {
     tanggal_awal: req.body.tanggal_awal,
     tanggal_akhir: req.body.tanggal_akhir,
     nama_agenda: req.body.nama_agenda,
     keterangan: req.body.keterangan,
-    foto: name_file,
   };
 
 

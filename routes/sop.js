@@ -1,5 +1,7 @@
 const express = require('express');
 const Joi = require('joi');
+const moment = require('moment');
+const fs = require('fs');
 const sopSchema = require('../models/sop_model');
 const checkauth = require('../middleware/validation');
 
@@ -15,6 +17,7 @@ router.post('/addsop', checkauth, async (req, res) => {
   const name = moment(date).format('hhmmiiss');
   const base64Data = req.body.file_base64;
   const type = req.body.file_type;
+  const name_file = `${req.body.nama_file}${name}${type}`;
   fs.writeFileSync(`./public/file/${req.body.file}${name}${type}`, base64Data, 'base64', () => {
   });
 
@@ -22,13 +25,11 @@ router.post('/addsop', checkauth, async (req, res) => {
   const payload = Joi.object({
     judul: Joi.string().required(),
     nama_judul: Joi.string().required(),
-    nama_file: Joi.date().required(),
     tgl_posting: Joi.string().required(),
   });
   const schema = {
     judul: req.body.judul,
     nama_judul: req.body.nama_judul,
-    nama_file: req.body.nama_file,
     tgl_posting: req.body.tgl_posting,
   };
   try {
@@ -36,7 +37,7 @@ router.post('/addsop', checkauth, async (req, res) => {
       sopSchema.create({
         judul: req.body.judul,
         nama_judul: req.body.nama_judul,
-        nama_file: req.body.nama_file,
+        nama_file: name_file,
         tgl_posting: req.body.tgl_posting,
       }).then((data) => {
         res.json({

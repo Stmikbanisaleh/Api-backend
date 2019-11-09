@@ -18,6 +18,7 @@ router.post('/addhalaman', checkauth, async (req, res) => {
   const name = moment(date).format('hhmmiiss');
   const base64Data = req.body.gambar_base64;
   const type = req.body.gambar_type;
+  const name_file = `${req.body.gambar}${name}${type}`;
   fs.writeFileSync(`./public/file/${req.body.gambar}${name}${type}`, base64Data, 'base64', () => {
   });
 
@@ -26,7 +27,6 @@ router.post('/addhalaman', checkauth, async (req, res) => {
     judul_seo: Joi.string().required(),
     isi_halaman: Joi.string().required(),
     tgl_posting: Joi.date().required(),
-    gambar: Joi.string().required(),
     username: Joi.string().required(),
   });
   const schema = {
@@ -34,8 +34,7 @@ router.post('/addhalaman', checkauth, async (req, res) => {
     judul_seo: req.body.judul_seo,
     isi_halaman: req.body.isi_halaman,
     tgl_posting: req.body.tgl_posting,
-    gambar: req.body.gambar,
-    username: req.body.username,
+    username: name_file,
   };
 
 
@@ -47,7 +46,7 @@ router.post('/addhalaman', checkauth, async (req, res) => {
         isi_halaman: req.body.isi_halaman,
         tgl_posting: req.body.tgl_posting,
         gambar: req.body.gambar,
-        username: req.body.username,
+        username: name_file,
       }).then((data) => {
         res.json({
           status: 200,
