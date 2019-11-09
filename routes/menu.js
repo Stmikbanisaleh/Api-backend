@@ -29,7 +29,6 @@ router.post('/addmenu', checkauth, async (req, res) => {
     urutan: req.body.urutan,
   };
 
-try {
   Joi.validate(schema, payload, () => {
     menuSchema.create({
       id_posisi: req.body.id_posisi,
@@ -39,57 +38,43 @@ try {
       link: req.body.link,
       status_aktif: req.body.status_aktif,
       urutan: req.body.urutan,
-    }).then((data) => {
-      res.json({
+    }).then((response) => {
+      res.status(201).json({
         status: 200,
-        data,
-        message: 'Menu berhasil ditambahkan',
+        messages: 'Menu berhasil ditambahkan',
+        data: response,
       });
-    }).catch((error) => {
-      res.status(500).json({
-        status: 500,
-        error: error.message,
+    }).catch((e) => {
+      res.status(422).json({
+        error: e.message,
       });
     });
   });
-} catch (error) {
-  res.status(500).json({
-    error,
-  });
-}
-
 });
 
-router.post('/deletemenu', checkauth, async (req, res) => {
-  let validate = Joi.object().keys({
-    id_menu: Joi.number().required(),
+router.post('/getmenu', checkauth, (req, res) => {
+  menuSchema.sequelize.query('SELECT `menu`.*, `posisi`.`nama_web` FROM `menu` '
+    + 'JOIN `posisi` ON `menu`.`id_posisi` = `posisi`.`id_posisi`').then((response) => {
+    res.status(200).json(response);
+  }).catch((e) => {
+    res.status(500).json(e);
   });
+});
 
-  const payload = {
-    id_menu: req.body.id_menu,
-  }
-
-  Joi.validate(payload, validate, (error) => {
-    menuSchema.destroy({
-      where: {
-        id_menu: req.body.id_menu,
-      }
-    })
-      .then((data) => {
-          res.status(200).json(
-            {
-              status: 200,
-              message: 'Delete Succesfully'
-            }
-          )
-      })
-    if (error) {
-      res.status(400).json({
-        'status': 'Required',
-        'messages': error.message,
-      })
-    }
+router.post('/getparentmenu', checkauth, (req, res) => {
+  menuSchema.sequelize.query('SELECT id_menu,nama_menu FROM menu').then((response) => {
+    res.status(200).json(response);
+  }).catch((e) => {
+    res.status(500).json(e);
   });
-})
+});
+
+router.post('/getposisi', checkauth, (req, res) => {
+  menuSchema.sequelize.query('SELECT * FROM posisi').then((response) => {
+    res.status(200).json(response);
+  }).catch((e) => {
+    res.status(500).json(e);
+  });
+});
 
 module.exports = router;
