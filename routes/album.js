@@ -61,4 +61,36 @@ router.post('/addalbum', checkauth, async (req, res) => {
 
 });
 
+router.post('/deletealbum', checkauth, async (req, res) => {
+  let validate = Joi.object().keys({
+    id_album: Joi.number().required(),
+  });
+
+  const payload = {
+    id_album: req.body.id_album,
+  }
+
+  Joi.validate(payload, validate, (error) => {
+    albumSchema.destroy({
+      where: {
+        id_album: req.body.id_album,
+      }
+    })
+      .then((data) => {
+          res.status(200).json(
+            {
+              status: 200,
+              message: 'Delete Succesfully'
+            }
+          )
+      })
+    if (error) {
+      res.status(400).json({
+        'status': 'Required',
+        'messages': error.message,
+      })
+    }
+  });
+})
+
 module.exports = router;

@@ -47,4 +47,36 @@ router.post('/addaksescepat', checkauth, async (req, res) => {
 
 });
 
+router.post('/deleteaksescepat', checkauth, async (req, res) => {
+  let validate = Joi.object().keys({
+    id_akses: Joi.number().required(),
+  });
+
+  const payload = {
+    id_akses: req.body.id_akses,
+  }
+
+  Joi.validate(payload, validate, (error) => {
+    aksescepatSchema.destroy({
+      where: {
+        id_akses: req.body.id_akses,
+      }
+    })
+      .then((data) => {
+          res.status(200).json(
+            {
+              status: 200,
+              message: 'Delete Succesfully'
+            }
+          )
+      })
+    if (error) {
+      res.status(400).json({
+        'status': 'Required',
+        'messages': error.message,
+      })
+    }
+  });
+})
+
 module.exports = router;

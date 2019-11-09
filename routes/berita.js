@@ -79,4 +79,36 @@ router.post('/addberita', checkauth, async (req, res) => {
 
 });
 
+router.post('/deleteberita', checkauth, async (req, res) => {
+  let validate = Joi.object().keys({
+    id_berita: Joi.number().required(),
+  });
+
+  const payload = {
+    id_berita: req.body.id_berita,
+  }
+
+  Joi.validate(payload, validate, (error) => {
+    beritaSchema.destroy({
+      where: {
+        id_berita: req.body.id_berita,
+      }
+    })
+      .then((data) => {
+          res.status(200).json(
+            {
+              status: 200,
+              message: 'Delete Succesfully'
+            }
+          )
+      })
+    if (error) {
+      res.status(400).json({
+        'status': 'Required',
+        'messages': error.message,
+      })
+    }
+  });
+})
+
 module.exports = router;

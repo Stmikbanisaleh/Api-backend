@@ -15,7 +15,7 @@ router.post('/addlink', checkauth, async (req, res) => {
   const name = moment(date).format('hhmmiiss');
   const base64Data = req.body.file_base64;
   const type = req.body.file_type;
-  fs.writeFileSync(`./public/file/${req.body.file}${name}${type}`, base64Data, 'base64', () => {
+  fs.writeFileSync(`./public/file/${req.body.logo}${name}${type}`, base64Data, 'base64', () => {
   });
 
 

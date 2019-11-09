@@ -77,4 +77,36 @@ router.post('/addidentitas', checkauth, async (req, res) => {
 
 });
 
+router.post('/deleteidentitas', checkauth, async (req, res) => {
+  let validate = Joi.object().keys({
+    id_identitas: Joi.number().required(),
+  });
+
+  const payload = {
+    id_identitas: req.body.id_identitas,
+  }
+
+  Joi.validate(payload, validate, (error) => {
+    identitasSchema.destroy({
+      where: {
+        id_identitas: req.body.id_identitas,
+      }
+    })
+      .then((data) => {
+          res.status(200).json(
+            {
+              status: 200,
+              message: 'Delete Succesfully'
+            }
+          )
+      })
+    if (error) {
+      res.status(400).json({
+        'status': 'Required',
+        'messages': error.message,
+      })
+    }
+  });
+})
+
 module.exports = router;

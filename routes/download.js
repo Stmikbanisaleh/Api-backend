@@ -61,4 +61,36 @@ router.post('/adddownload', checkauth, async (req, res) => {
 
 });
 
+router.post('/deletedownload', checkauth, async (req, res) => {
+  let validate = Joi.object().keys({
+    id_download: Joi.number().required(),
+  });
+
+  const payload = {
+    id_download: req.body.id_download,
+  }
+
+  Joi.validate(payload, validate, (error) => {
+    downloadSchema.destroy({
+      where: {
+        id_download: req.body.id_download,
+      }
+    })
+      .then((data) => {
+          res.status(200).json(
+            {
+              status: 200,
+              message: 'Delete Succesfully'
+            }
+          )
+      })
+    if (error) {
+      res.status(400).json({
+        'status': 'Required',
+        'messages': error.message,
+      })
+    }
+  });
+})
+
 module.exports = router;

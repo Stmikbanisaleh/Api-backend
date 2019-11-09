@@ -60,4 +60,36 @@ try {
 
 });
 
+router.post('/deletemenu', checkauth, async (req, res) => {
+  let validate = Joi.object().keys({
+    id_menu: Joi.number().required(),
+  });
+
+  const payload = {
+    id_menu: req.body.id_menu,
+  }
+
+  Joi.validate(payload, validate, (error) => {
+    menuSchema.destroy({
+      where: {
+        id_menu: req.body.id_menu,
+      }
+    })
+      .then((data) => {
+          res.status(200).json(
+            {
+              status: 200,
+              message: 'Delete Succesfully'
+            }
+          )
+      })
+    if (error) {
+      res.status(400).json({
+        'status': 'Required',
+        'messages': error.message,
+      })
+    }
+  });
+})
+
 module.exports = router;

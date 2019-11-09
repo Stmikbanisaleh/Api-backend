@@ -58,4 +58,36 @@ router.post('/addsop', checkauth, async (req, res) => {
   }
 });
 
+router.post('/deletesop', checkauth, async (req, res) => {
+  let validate = Joi.object().keys({
+    id_sop: Joi.number().required(),
+  });
+
+  const payload = {
+    id_sop: req.body.id_sop,
+  }
+
+  Joi.validate(payload, validate, (error) => {
+    sopSchema.destroy({
+      where: {
+        id_sop: req.body.id_sop,
+      }
+    })
+      .then((data) => {
+          res.status(200).json(
+            {
+              status: 200,
+              message: 'Delete Succesfully'
+            }
+          )
+      })
+    if (error) {
+      res.status(400).json({
+        'status': 'Required',
+        'messages': error.message,
+      })
+    }
+  });
+})
+
 module.exports = router;
