@@ -57,7 +57,13 @@ router.post('/addmenu', checkauth, async (req, res) => {
       messages: error.message,
       data: {},
     });
-  }
+  });
+} catch (error) {
+  res.status(500).json({
+    error,
+  });
+}
+
 });
 
 router.post('/getmenu', checkauth, (req, res) => {

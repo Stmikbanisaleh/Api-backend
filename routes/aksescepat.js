@@ -22,28 +22,61 @@ router.post('/addaksescepat', checkauth, async (req, res) => {
 
 
   try {
-    Joi.validate(schema, payload, (error) => {
-      const sukses = aksescepatSchema.create(schema);
-      if (sukses) {
-        res.status(201).json({
+    Joi.validate(schema, payload, () => {
+      aksescepatSchema.create({
+        nama_link: req.body.nama_link,
+        url: req.body.url,
+      }).then((data) => {
+        res.json({
           status: 200,
-          messages: 'Akses cepat berhasil ditambahkan',
-          data: aksescepatSchema,
+          data,
+          message: 'Menu berhasil ditambahkan',
         });
-      }
-      if (error) {
-        res.status(422).json({
+      }).catch((error) => {
+        res.status(500).json({
+          status: 500,
           error: error.message,
         });
-      }
+      });
     });
   } catch (error) {
-    res.status(400).json({
-      status: 'ERROR',
-      messages: error.message,
-      data: {},
+    res.status(500).json({
+      error,
     });
   }
+
 });
+
+router.post('/deleteaksescepat', checkauth, async (req, res) => {
+  let validate = Joi.object().keys({
+    id_akses: Joi.number().required(),
+  });
+
+  const payload = {
+    id_akses: req.body.id_akses,
+  }
+
+  Joi.validate(payload, validate, (error) => {
+    aksescepatSchema.destroy({
+      where: {
+        id_akses: req.body.id_akses,
+      }
+    })
+      .then((data) => {
+          res.status(200).json(
+            {
+              status: 200,
+              message: 'Delete Succesfully'
+            }
+          )
+      })
+    if (error) {
+      res.status(400).json({
+        'status': 'Required',
+        'messages': error.message,
+      })
+    }
+  });
+})
 
 module.exports = router;

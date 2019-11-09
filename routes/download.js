@@ -11,6 +11,14 @@ router.get('/', (req, res) => {
 });
 
 router.post('/adddownload', checkauth, async (req, res) => {
+  const date = new Date();
+  const name = moment(date).format('hhmmiiss');
+  const base64Data = req.body.file_base64;
+  const type = req.body.file_type;
+  fs.writeFileSync(`./public/file/${req.body.file}${name}${type}`, base64Data, 'base64', () => {
+  });
+
+
   const payload = Joi.object({
     judul: Joi.string().required(),
     nama_file: Joi.string().required(),
@@ -26,28 +34,63 @@ router.post('/adddownload', checkauth, async (req, res) => {
 
 
   try {
-    Joi.validate(schema, payload, (error) => {
-      const sukses = downloadSchema.create(schema);
-      if (sukses) {
-        res.status(201).json({
+    Joi.validate(schema, payload, () => {
+      downloadSchema.create({
+        judul: req.body.judul,
+        nama_file: req.body.nama_file,
+        tgl_posting: req.body.tgl_posting,
+        hits: req.body.hits,
+      }).then((data) => {
+        res.json({
           status: 200,
-          messages: 'Download berhasil ditambahkan',
-          data: downloadSchema,
+          data,
+          message: 'Menu berhasil ditambahkan',
         });
-      }
-      if (error) {
-        res.status(422).json({
+      }).catch((error) => {
+        res.status(500).json({
+          status: 500,
           error: error.message,
         });
-      }
+      });
     });
   } catch (error) {
-    res.status(400).json({
-      status: 'ERROR',
-      messages: error.message,
-      data: {},
+    res.status(500).json({
+      error,
     });
   }
+
 });
+
+router.post('/deletedownload', checkauth, async (req, res) => {
+  let validate = Joi.object().keys({
+    id_download: Joi.number().required(),
+  });
+
+  const payload = {
+    id_download: req.body.id_download,
+  }
+
+  Joi.validate(payload, validate, (error) => {
+    downloadSchema.destroy({
+      where: {
+        id_download: req.body.id_download,
+      }
+    })
+      .then((data) => {
+          res.status(200).json(
+            {
+              status: 200,
+              message: 'Delete Succesfully'
+            }
+          )
+      })
+    if (error) {
+      res.status(400).json({
+        'status': 'Required',
+        'messages': error.message,
+      })
+    }
+  });
+})
 
 module.exports = router;
