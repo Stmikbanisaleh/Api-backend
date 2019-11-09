@@ -1,5 +1,7 @@
 const express = require('express');
 const Joi = require('joi');
+const moment = require('moment');
+const fs = require('fs');
 const agendaSchema = require('../models/agenda_model');
 const checkauth = require('../middleware/validation');
 
@@ -15,9 +17,9 @@ router.post('/addagenda', checkauth, async (req, res) => {
   const name = moment(date).format('hhmmiiss');
   const base64Data = req.body.gambar_base64;
   const type = req.body.gambar_type;
+  const name_file = `${req.body.foto}${name}${type}`;
   fs.writeFileSync(`./public/file/${req.body.gambar}${name}${type}`, base64Data, 'base64', () => {
   });
-
   
   const payload = Joi.object({
     tanggal_awal: Joi.string().required(),
@@ -31,7 +33,7 @@ router.post('/addagenda', checkauth, async (req, res) => {
     tanggal_akhir: req.body.tanggal_akhir,
     nama_agenda: req.body.nama_agenda,
     keterangan: req.body.keterangan,
-    foto: req.body.foto,
+    foto: name_file,
   };
 
 
@@ -42,7 +44,7 @@ router.post('/addagenda', checkauth, async (req, res) => {
         tanggal_akhir: req.body.tanggal_akhir,
         nama_agenda: req.body.nama_agenda,
         keterangan: req.body.keterangan,
-        foto: req.body.foto,
+        foto: name_file,
       }).then((data) => {
         res.json({
           status: 200,
