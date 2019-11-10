@@ -106,11 +106,112 @@ router.post('/getkegiatan', checkauth, (req, res) => {
   });
 });
 
+router.post('/getkegiatanbyid', checkauth, (req, res) => {
+  kegiatanSchema.findAndCountAll({
+    where: {
+      id_kegiatan: req.body.id_kegiatan,
+    },
+  }).then((response) => {
+    res.status(200).json(response);
+  }).catch((e) => {
+    res.status(500).json(e);
+  });
+});
+
 router.post('/getposisi', checkauth, (req, res) => {
   posisiSchema.sequelize.query('SELECT * FROM posisi WHERE id_posisi != 1').then((response) => {
     res.status(200).json(response);
   }).catch((e) => {
     res.status(500).json(e);
+  });
+});
+
+
+router.post('/updatekegiatan', checkauth, (req, res) => {
+  const validate = Joi.object().keys({
+    id_posisi: Joi.string().required(),
+    nama_kegiatan: Joi.date().required(),
+    tempat: Joi.string().required(),
+    tanggal: Joi.string().required(),
+  });
+
+  const payload = {
+    id_posisi: req.body.id_posisi,
+    nama_kegiatan: req.body.nama_kegiatan,
+    tempat: req.body.tempat,
+    tanggal: req.body.tanggal,
+  };
+
+  Joi.validate(payload, validate, () => {
+    if (req.body.gambar) {
+      const date = new Date();
+      const name = moment(date).format('hhmmiiss');
+      const base64Data = req.body.gambar_base64;
+      const type = req.body.gambar_type;
+      const name_file = `${req.body.gambar}${name}.${type}`;
+      fs.writeFileSync(`./public/file/${req.body.gambar}${name}.${type}`, base64Data, 'base64', () => {
+      });
+      kegiatanSchema.update({
+        id_posisi: req.body.id_posisi,
+        nama_kegiatan: req.body.nama_kegiatan,
+        tempat: req.body.tempat,
+        tanggal: req.body.tanggal,
+        gambar: name_file,
+      },
+      {
+        where: {
+          id_kegiatan: req.body.id_kegiatan,
+        },
+      })
+        .then((data) => {
+          if (data === 0) {
+            res.status(404).json({
+              message: 'Not Found',
+              status: 404,
+            });
+          } else {
+            res.status(200).json({
+              message: 'Update Succesfully',
+              status: 200,
+            });
+          }
+        }).catch((e) => {
+          res.status(500).json({
+            status: 500,
+            messages: e.message,
+          });
+        });
+    } else {
+      kegiatanSchema.update({
+        id_posisi: req.body.id_posisi,
+        nama_kegiatan: req.body.nama_kegiatan,
+        tempat: req.body.tempat,
+        tanggal: req.body.tanggal,
+      },
+      {
+        where: {
+          id_kegiatan: req.body.id_kegiatan,
+        },
+      })
+        .then((data) => {
+          if (data === 0) {
+            res.status(404).json({
+              message: 'Not Found',
+              status: 404,
+            });
+          } else {
+            res.status(200).json({
+              message: 'Update Succesfully',
+              status: 200,
+            });
+          }
+        }).catch((e) => {
+          res.status(500).json({
+            status: 500,
+            messages: e.message,
+          });
+        });
+    }
   });
 });
 module.exports = router;

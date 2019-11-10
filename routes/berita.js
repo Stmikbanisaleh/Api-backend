@@ -121,6 +121,18 @@ router.post('/getberita', checkauth, (req, res) => {
   });
 });
 
+router.post('/getberitabyid', checkauth, (req, res) => {
+  beritaSchema.findAndCountAll({
+    where: {
+      id_berita: req.body.id_berita,
+    },
+  }).then((response) => {
+    res.status(200).json(response);
+  }).catch((e) => {
+    res.status(500).json(e);
+  });
+});
+
 router.post('/getposisi', checkauth, (req, res) => {
   beritaSchema.sequelize.query('select id_posisi, nama_web from posisi').then((response) => {
     res.status(200).json(response);
@@ -157,6 +169,110 @@ router.post('/deleteberita', checkauth, async (req, res) => {
         status: 'Required',
         messages: error.message,
       });
+    }
+  });
+});
+
+router.post('/updateberita', checkauth, (req, res) => {
+  const validate = Joi.object().keys({
+    username: Joi.string().required(),
+    id_posisi: Joi.string().required(),
+    judul: Joi.date().required(),
+    sub_judul: Joi.string().required(),
+    youtube: Joi.string().required(),
+    judul_seo: Joi.string().required(),
+    isi_berita: Joi.string().required(),
+    keterangan_gambar: Joi.string().required(),
+  });
+
+  const payload = {
+    username: req.body.username,
+    id_posisi: req.body.id_posisi,
+    judul: req.body.judul,
+    sub_judul: req.body.sub_judul,
+    youtube: req.body.youtube,
+    judul_seo: req.body.judul_seo,
+    isi_berita: req.body.isi_berita,
+    keterangan_gambar: req.body.keterangan_gambar,
+  };
+
+  Joi.validate(payload, validate, () => {
+    if (req.body.gambar) {
+      const date = new Date();
+      const name = moment(date).format('hhmmiiss');
+      const base64Data = req.body.gambar_base64;
+      const type = req.body.gambar_type;
+      const name_file = `${req.body.gambar}${name}.${type}`;
+      fs.writeFileSync(`./public/file/${req.body.gambar}${name}.${type}`, base64Data, 'base64', () => {
+      });
+      beritaSchema.update({
+        username: req.body.username,
+        id_posisi: req.body.id_posisi,
+        judul: req.body.judul,
+        sub_judul: req.body.sub_judul,
+        youtube: req.body.youtube,
+        judul_seo: req.body.judul_seo,
+        isi_berita: req.body.isi_berita,
+        gambar: name_file,
+        keterangan_gambar: req.body.keterangan_gambar,
+      },
+      {
+        where: {
+          id_berita: req.body.id_berita,
+        },
+      })
+        .then((data) => {
+          if (data === 0) {
+            res.status(404).json({
+              message: 'Not Found',
+              status: 404,
+            });
+          } else {
+            res.status(200).json({
+              message: 'Update Succesfully',
+              status: 200,
+            });
+          }
+        }).catch((e) => {
+          res.status(500).json({
+            status: 500,
+            messages: e.message,
+          });
+        });
+    } else {
+      beritaSchema.update({
+        username: req.body.username,
+        id_posisi: req.body.id_posisi,
+        judul: req.body.judul,
+        sub_judul: req.body.sub_judul,
+        youtube: req.body.youtube,
+        judul_seo: req.body.judul_seo,
+        isi_berita: req.body.isi_berita,
+        keterangan_gambar: req.body.keterangan_gambar,
+      },
+      {
+        where: {
+          id_berita: req.body.id_berita,
+        },
+      })
+        .then((data) => {
+          if (data === 0) {
+            res.status(404).json({
+              message: 'Not Found',
+              status: 404,
+            });
+          } else {
+            res.status(200).json({
+              message: 'Update Succesfully',
+              status: 200,
+            });
+          }
+        }).catch((e) => {
+          res.status(500).json({
+            status: 500,
+            messages: e.message,
+          });
+        });
     }
   });
 });

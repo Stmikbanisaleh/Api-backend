@@ -89,9 +89,7 @@ router.post('/getmenubyid', checkauth, (req, res) => {
           message: 'Not Found',
         });
       } else {
-        res.status(200).json({
-          data,
-        });
+        res.status(200).json(data);
       }
       // });x
     })
@@ -132,6 +130,54 @@ router.post('/deletemenu', checkauth, async (req, res) => {
         messages: error.message,
       });
     }
+  });
+});
+
+router.post('/updatemenu', checkauth, (req, res) => {
+  const validate = Joi.object().keys({
+    id_posisi: Joi.string().required(),
+    id_parent: Joi.string().required(),
+    nama_menu: Joi.string().required(),
+    punya_sub: Joi.string().required(),
+    status_aktif: Joi.string().required(),
+    urutan: Joi.string().required(),
+  });
+
+  const payload = {
+    id_posisi: req.body.id_posisi,
+    id_parent: req.body.id_parent,
+    nama_menu: req.body.nama_menu,
+    punya_sub: req.body.punya_sub,
+    status_aktif: req.body.status_aktif,
+    urutan: req.body.urutan,
+  };
+
+  Joi.validate(payload, validate, () => {
+    menuSchema.update({
+      id_posisi: req.body.id_posisi,
+      id_parent: req.body.id_parent,
+      nama_menu: req.body.nama_menu,
+      link: req.body.link,
+      punya_sub: req.body.punya_sub,
+      status_aktif: req.body.status_aktif,
+      urutan: req.body.urutan,
+    },
+    {
+      where: {
+        id_menu: req.body.id_menu,
+      },
+    })
+      .then(() => {
+        res.status(200).json({
+          message: 'Update Succesfully',
+          status: 200,
+        });
+      }).catch((e) => {
+        res.status(500).json({
+          status: 500,
+          messages: e.message,
+        });
+      });
   });
 });
 

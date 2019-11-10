@@ -14,14 +14,6 @@ router.get('/', (req, res) => {
 });
 
 router.post('/addagenda', checkauth, async (req, res) => {
-  const date = new Date();
-  const name = moment(date).format('hhmmiiss');
-  const base64Data = req.body.gambar_base64;
-  const type = req.body.gambar_type;
-  const name_file = `${req.body.foto}${name}.${type}`;
-  fs.writeFileSync(`./public/file/${req.body.foto}${name}.${type}`, base64Data, 'base64', () => {
-  });
-
   const payload = Joi.object({
     tanggal_awal: Joi.string().required(),
     tanggal_akhir: Joi.string().required(),
@@ -37,24 +29,51 @@ router.post('/addagenda', checkauth, async (req, res) => {
 
   try {
     Joi.validate(schema, payload, () => {
-      agendaSchema.create({
-        tanggal_awal: req.body.tanggal_awal,
-        tanggal_akhir: req.body.tanggal_akhir,
-        nama_agenda: req.body.nama_agenda,
-        keterangan: req.body.keterangan,
-        foto: name_file,
-      }).then((data) => {
-        res.json({
-          status: 200,
-          data,
-          message: 'Agenda berhasil ditambahkan',
+      if (req.body.foto) {
+        const date = new Date();
+        const name = moment(date).format('hhmmiiss');
+        const base64Data = req.body.gambar_base64;
+        const type = req.body.gambar_type;
+        const name_file = `${req.body.foto}${name}.${type}`;
+        fs.writeFileSync(`./public/file/${req.body.foto}${name}.${type}`, base64Data, 'base64', () => {
         });
-      }).catch((error) => {
-        res.status(500).json({
-          status: 500,
-          error: error.message,
+        agendaSchema.create({
+          tanggal_awal: req.body.tanggal_awal,
+          tanggal_akhir: req.body.tanggal_akhir,
+          nama_agenda: req.body.nama_agenda,
+          keterangan: req.body.keterangan,
+          foto: name_file,
+        }).then((data) => {
+          res.json({
+            status: 200,
+            data,
+            message: 'Agenda berhasil ditambahkan',
+          });
+        }).catch((error) => {
+          res.status(500).json({
+            status: 500,
+            error: error.message,
+          });
         });
-      });
+      } else {
+        agendaSchema.create({
+          tanggal_awal: req.body.tanggal_awal,
+          tanggal_akhir: req.body.tanggal_akhir,
+          nama_agenda: req.body.nama_agenda,
+          keterangan: req.body.keterangan,
+        }).then((data) => {
+          res.json({
+            status: 200,
+            data,
+            message: 'Agenda berhasil ditambahkan',
+          });
+        }).catch((error) => {
+          res.status(500).json({
+            status: 500,
+            error: error.message,
+          });
+        });
+      }
     });
   } catch (error) {
     res.status(500).json({
@@ -102,6 +121,107 @@ router.post('/getagenda', checkauth, (req, res) => {
     res.status(200).json(response);
   }).catch((e) => {
     res.status(500).json(e);
+  });
+});
+
+router.post('/getagendabyid', checkauth, (req, res) => {
+  agendaSchema.findAndCountAll({
+    where: {
+      id_agenda: req.body.id_agenda,
+    },
+  }).then((response) => {
+    res.status(200).json(response);
+  }).catch((e) => {
+    res.status(500).json(e);
+  });
+});
+
+
+router.post('/updateagenda', checkauth, (req, res) => {
+  const validate = Joi.object().keys({
+    nama_agenda: Joi.string().required(),
+    keterangan: Joi.date().required(),
+    tanggal_awal: Joi.string().required(),
+    tanggal_akhir: Joi.string().required(),
+  });
+
+  const payload = {
+    nama_agenda: req.body.nama_agenda,
+    keterangan: req.body.keterangan,
+    tanggal_awal: req.body.tanggal_awal,
+    tanggal_akhir: req.body.tanggal_akhir,
+  };
+
+  Joi.validate(payload, validate, () => {
+    if (req.body.foto) {
+      const date = new Date();
+      const name = moment(date).format('hhmmiiss');
+      const base64Data = req.body.gambar_base64;
+      const type = req.body.gambar_type;
+      const name_file = `${req.body.foto}${name}.${type}`;
+      fs.writeFileSync(`./public/file/${req.body.foto}${name}.${type}`, base64Data, 'base64', () => {
+      });
+      agendaSchema.update({
+        nama_agenda: req.body.nama_agenda,
+        keterangan: req.body.keterangan,
+        tanggal_awal: req.body.tanggal_awal,
+        tanggal_akhir: req.body.tanggal_akhir,
+        foto: name_file,
+      },
+      {
+        where: {
+          id_agenda: req.body.id_agenda,
+        },
+      })
+        .then((data) => {
+          if (data === 0) {
+            res.status(404).json({
+              message: 'Not Found',
+              status: 404,
+            });
+          } else {
+            res.status(200).json({
+              message: 'Update Succesfully',
+              status: 200,
+            });
+          }
+        }).catch((e) => {
+          res.status(500).json({
+            status: 500,
+            messages: e.message,
+          });
+        });
+    } else {
+      agendaSchema.update({
+        id_posisi: req.body.id_posisi,
+        keterangan: req.body.keterangan,
+        tanggal_awal: req.body.tanggal_awal,
+        tanggal_akhir: req.body.tanggal_akhir,
+      },
+      {
+        where: {
+          id_agenda: req.body.id_agenda,
+        },
+      })
+        .then((data) => {
+          if (data === 0) {
+            res.status(404).json({
+              message: 'Not Found',
+              status: 404,
+            });
+          } else {
+            res.status(200).json({
+              message: 'Update Succesfully',
+              status: 200,
+            });
+          }
+        }).catch((e) => {
+          res.status(500).json({
+            status: 500,
+            messages: e.message,
+          });
+        });
+    }
   });
 });
 
