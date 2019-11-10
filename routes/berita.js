@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 const express = require('express');
 const Joi = require('joi');
 const moment = require('moment');
@@ -13,16 +14,14 @@ router.get('/', (req, res) => {
 });
 
 router.post('/addberita', checkauth, async (req, res) => {
-    const date = new Date();
-    const name = moment(date).format('hhmmiiss');
-    const base64Data = req.body.gambar_base64;
-    const type = req.body.gambar_type;
-    const name_file = `${req.body.gambar}${name}${type}`;
-    fs.writeFileSync(`./public/file/${req.body.gambar}${name}${type}`, base64Data, 'base64', () => {
-    });
- 
+  const date = new Date();
+  const name = moment(date).format('hhmmiiss');
+  const base64Data = req.body.gambar_base64;
+  const type = req.body.gambar_type;
+  const name_file = `${req.body.gambar}${name}.${type}`;
+  fs.writeFileSync(`./public/file/${req.body.gambar}${name}.${type}`, base64Data, 'base64', () => {
+  });
 
-  
   const payload = Joi.object({
     username: Joi.string().required(),
     id_posisi: Joi.string().required(),
@@ -46,7 +45,6 @@ router.post('/addberita', checkauth, async (req, res) => {
     tanggal: req.body.tanggal,
   };
 
-
   try {
     Joi.validate(schema, payload, () => {
       beritaSchema.create({
@@ -64,7 +62,7 @@ router.post('/addberita', checkauth, async (req, res) => {
         res.json({
           status: 200,
           data,
-          message: 'Menu berhasil ditambahkan',
+          message: 'Berita berhasil ditambahkan',
         });
       }).catch((error) => {
         res.status(500).json({
@@ -78,39 +76,88 @@ router.post('/addberita', checkauth, async (req, res) => {
       error,
     });
   }
-
 });
 
 router.post('/deleteberita', checkauth, async (req, res) => {
-  let validate = Joi.object().keys({
+  const validate = Joi.object().keys({
     id_berita: Joi.number().required(),
   });
 
   const payload = {
     id_berita: req.body.id_berita,
-  }
+  };
 
   Joi.validate(payload, validate, (error) => {
     beritaSchema.destroy({
       where: {
         id_berita: req.body.id_berita,
-      }
+      },
     })
-      .then((data) => {
-          res.status(200).json(
-            {
-              status: 200,
-              message: 'Delete Succesfully'
-            }
-          )
-      })
+      .then(() => {
+        res.status(200).json(
+          {
+            status: 200,
+            message: 'Delete Succesfully',
+          },
+        );
+      });
     if (error) {
       res.status(400).json({
-        'status': 'Required',
-        'messages': error.message,
-      })
+        status: 'Required',
+        messages: error.message,
+      });
     }
   });
-})
+});
 
+router.post('/getberita', checkauth, (req, res) => {
+  beritaSchema.sequelize.query('SELECT `berita`.*,`posisi`.`id_posisi`,`posisi`.`nama_web` '
+  + 'FROM `berita` '
+  + 'JOIN `posisi` ON `posisi`.`id_posisi` = `berita`.`id_posisi` '
+  + 'ORDER BY `berita`.`id_berita` DESC').then((response) => {
+    res.status(200).json(response);
+  }).catch((e) => {
+    res.status(500).json(e);
+  });
+});
+
+router.post('/getposisi', checkauth, (req, res) => {
+  beritaSchema.sequelize.query('select id_posisi, nama_web from posisi').then((response) => {
+    res.status(200).json(response);
+  }).catch((e) => {
+    res.status(500).json(e);
+  });
+});
+
+router.post('/deleteberita', checkauth, async (req, res) => {
+  const validate = Joi.object().keys({
+    id_berita: Joi.number().required(),
+  });
+
+  const payload = {
+    id_berita: req.body.id_berita,
+  };
+
+  Joi.validate(payload, validate, (error) => {
+    beritaSchema.destroy({
+      where: {
+        id_berita: req.body.id_berita,
+      },
+    })
+      .then(() => {
+        res.status(200).json(
+          {
+            status: 200,
+            message: 'Delete Succesfully',
+          },
+        );
+      });
+    if (error) {
+      res.status(400).json({
+        status: 'Required',
+        messages: error.message,
+      });
+    }
+  });
+});
 module.exports = router;

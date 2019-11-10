@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 const express = require('express');
 const Joi = require('joi');
 const fs = require('fs');
@@ -18,8 +19,8 @@ router.post('/addhalaman', checkauth, async (req, res) => {
   const name = moment(date).format('hhmmiiss');
   const base64Data = req.body.gambar_base64;
   const type = req.body.gambar_type;
-  const name_file = `${req.body.gambar}${name}${type}`;
-  fs.writeFileSync(`./public/file/${req.body.gambar}${name}${type}`, base64Data, 'base64', () => {
+  const name_file = `${req.body.gambar}${name}.${type}`;
+  fs.writeFileSync(`./public/file/${req.body.gambar}${name}.${type}`, base64Data, 'base64', () => {
   });
 
   const payload = Joi.object({
@@ -51,7 +52,7 @@ router.post('/addhalaman', checkauth, async (req, res) => {
         res.json({
           status: 200,
           data,
-          message: 'Menu berhasil ditambahkan',
+          message: 'Halaman berhasil ditambahkan',
         });
       }).catch((error) => {
         res.status(500).json({

@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 const express = require('express');
 const Joi = require('joi');
 const moment = require('moment');
@@ -17,8 +18,8 @@ router.post('/addagenda', checkauth, async (req, res) => {
   const name = moment(date).format('hhmmiiss');
   const base64Data = req.body.gambar_base64;
   const type = req.body.gambar_type;
-  const name_file = `${req.body.foto}${name}${type}`;
-  fs.writeFileSync(`./public/file/${req.body.foto}${name}${type}`, base64Data, 'base64', () => {
+  const name_file = `${req.body.foto}${name}.${type}`;
+  fs.writeFileSync(`./public/file/${req.body.foto}${name}.${type}`, base64Data, 'base64', () => {
   });
 
   const payload = Joi.object({
@@ -34,7 +35,6 @@ router.post('/addagenda', checkauth, async (req, res) => {
     keterangan: req.body.keterangan,
   };
 
-
   try {
     Joi.validate(schema, payload, () => {
       agendaSchema.create({
@@ -47,7 +47,7 @@ router.post('/addagenda', checkauth, async (req, res) => {
         res.json({
           status: 200,
           data,
-          message: 'Menu berhasil ditambahkan',
+          message: 'Agenda berhasil ditambahkan',
         });
       }).catch((error) => {
         res.status(500).json({
@@ -61,71 +61,48 @@ router.post('/addagenda', checkauth, async (req, res) => {
       error,
     });
   }
-
 });
 
 router.post('/deleteagenda', checkauth, async (req, res) => {
-  let validate = Joi.object().keys({
+  const validate = Joi.object().keys({
     id_agenda: Joi.number().required(),
   });
 
   const payload = {
     id_agenda: req.body.id_agenda,
-  }
+  };
 
   Joi.validate(payload, validate, (error) => {
     agendaSchema.destroy({
       where: {
         id_agenda: req.body.id_agenda,
-      }
+      },
     })
-      .then((data) => {
-          res.status(200).json(
-            {
-              status: 200,
-              message: 'Delete Succesfully'
-            }
-          )
-      })
+      .then(() => {
+        res.status(200).json(
+          {
+            status: 200,
+            message: 'Delete Succesfully',
+          },
+        );
+      });
     if (error) {
       res.status(400).json({
-        'status': 'Required',
-        'messages': error.message,
-      })
+        status: 'Required',
+        messages: error.message,
+      });
     }
   });
-})
+});
 
-router.post('/deleteagenda', checkauth, async (req, res) => {
-  let validate = Joi.object().keys({
-    id_agenda: Joi.number().required(),
+router.post('/getagenda', checkauth, (req, res) => {
+  agendaSchema.sequelize.query('SELECT * '
+  + 'FROM `agenda` '
+  + 'order by id_agenda DESC').then((response) => {
+    res.status(200).json(response);
+  }).catch((e) => {
+    res.status(500).json(e);
   });
-
-  const payload = {
-    id_agenda: req.body.id_agenda,
-  }
-
-  Joi.validate(payload, validate, (error) => {
-    agendaSchema.destroy({
-      where: {
-        id_agenda: req.body.id_agenda,
-      }
-    })
-      .then((data) => {
-          res.status(200).json(
-            {
-              status: 200,
-              message: 'Delete Succesfully'
-            }
-          )
-      })
-    if (error) {
-      res.status(400).json({
-        'status': 'Required',
-        'messages': error.message,
-      })
-    }
-  });
-})
+});
 
 module.exports = router;

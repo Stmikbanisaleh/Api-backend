@@ -22,6 +22,7 @@ const  albumModel = require('./models/album_model');
 const  agendaModel = require('./models/agenda_model');
 const  kegiatanModel = require('./models/kegiatan_model');
 const  beritaModel = require('./models/berita_model');
+const  posisiModel = require('./models/posisi_model');
 
 
 const indexRouter = require('./routes/index');
