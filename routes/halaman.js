@@ -15,14 +15,6 @@ router.get('/', (req, res) => {
 });
 
 router.post('/addhalaman', checkauth, async (req, res) => {
-  const date = new Date();
-  const name = moment(date).format('hhmmiiss');
-  const base64Data = req.body.gambar_base64;
-  const type = req.body.gambar_type;
-  const name_file = `${req.body.gambar}${name}.${type}`;
-  fs.writeFileSync(`./public/file/${req.body.gambar}${name}.${type}`, base64Data, 'base64', () => {
-  });
-
   const payload = Joi.object({
     judul: Joi.string().required(),
     judul_seo: Joi.string().required(),
@@ -37,29 +29,55 @@ router.post('/addhalaman', checkauth, async (req, res) => {
     tgl_posting: req.body.tgl_posting,
     username: req.body.username,
   };
-
-
   try {
     Joi.validate(schema, payload, () => {
-      halamanSchema.create({
-        judul: req.body.judul,
-        judul_seo: req.body.judul_seo,
-        isi_halaman: req.body.isi_halaman,
-        tgl_posting: req.body.tgl_posting,
-        gambar: name_file,
-        username: req.body.username,
-      }).then((data) => {
-        res.json({
-          status: 200,
-          data,
-          message: 'Halaman berhasil ditambahkan',
+      if (req.body.gambar) {
+        const date = new Date();
+        const name = moment(date).format('hhmmiiss');
+        const base64Data = req.body.gambar_base64;
+        const type = req.body.gambar_type;
+        const name_file = `${req.body.gambar}${name}.${type}`;
+        fs.writeFileSync(`./public/file/${req.body.gambar}${name}.${type}`, base64Data, 'base64', () => {
         });
-      }).catch((error) => {
-        res.status(500).json({
-          status: 500,
-          error: error.message,
+        halamanSchema.create({
+          judul: req.body.judul,
+          judul_seo: req.body.judul_seo,
+          isi_halaman: req.body.isi_halaman,
+          tgl_posting: req.body.tgl_posting,
+          gambar: name_file,
+          username: req.body.username,
+        }).then((data) => {
+          res.json({
+            status: 200,
+            data,
+            message: 'Halaman berhasil ditambahkan',
+          });
+        }).catch((error) => {
+          res.status(500).json({
+            status: 500,
+            error: error.message,
+          });
         });
-      });
+      } else {
+        halamanSchema.create({
+          judul: req.body.judul,
+          judul_seo: req.body.judul_seo,
+          isi_halaman: req.body.isi_halaman,
+          tgl_posting: req.body.tgl_posting,
+          username: req.body.username,
+        }).then((data) => {
+          res.json({
+            status: 200,
+            data,
+            message: 'Halaman berhasil ditambahkan',
+          });
+        }).catch((error) => {
+          res.status(500).json({
+            status: 500,
+            error: error.message,
+          });
+        });
+      }
     });
   } catch (error) {
     res.status(500).json({

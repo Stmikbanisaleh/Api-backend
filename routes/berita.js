@@ -14,14 +14,6 @@ router.get('/', (req, res) => {
 });
 
 router.post('/addberita', checkauth, async (req, res) => {
-  const date = new Date();
-  const name = moment(date).format('hhmmiiss');
-  const base64Data = req.body.gambar_base64;
-  const type = req.body.gambar_type;
-  const name_file = `${req.body.gambar}${name}.${type}`;
-  fs.writeFileSync(`./public/file/${req.body.gambar}${name}.${type}`, base64Data, 'base64', () => {
-  });
-
   const payload = Joi.object({
     username: Joi.string().required(),
     id_posisi: Joi.string().required(),
@@ -47,29 +39,61 @@ router.post('/addberita', checkauth, async (req, res) => {
 
   try {
     Joi.validate(schema, payload, () => {
-      beritaSchema.create({
-        username: req.body.username,
-        id_posisi: req.body.id_posisi,
-        judul: req.body.judul,
-        sub_judul: req.body.sub_judul,
-        youtube: req.body.youtube,
-        judul_seo: req.body.judul_seo,
-        isi_berita: req.body.isi_berita,
-        gambar: name_file,
-        keterangan_gambar: req.body.keterangan_gambar,
-        tanggal: req.body.tanggal,
-      }).then((data) => {
-        res.json({
-          status: 200,
-          data,
-          message: 'Berita berhasil ditambahkan',
-        });
-      }).catch((error) => {
-        res.status(500).json({
-          status: 500,
-          error: error.message,
-        });
+      const date = new Date();
+      const name = moment(date).format('hhmmiiss');
+      const base64Data = req.body.gambar_base64;
+      const type = req.body.gambar_type;
+      const name_file = `${req.body.gambar}${name}.${type}`;
+      fs.writeFileSync(`./public/file/${req.body.gambar}${name}.${type}`, base64Data, 'base64', () => {
       });
+      if (req.body.gambar) {
+        beritaSchema.create({
+          username: req.body.username,
+          id_posisi: req.body.id_posisi,
+          judul: req.body.judul,
+          sub_judul: req.body.sub_judul,
+          youtube: req.body.youtube,
+          judul_seo: req.body.judul_seo,
+          isi_berita: req.body.isi_berita,
+          gambar: name_file,
+          keterangan_gambar: req.body.keterangan_gambar,
+          tanggal: req.body.tanggal,
+        }).then((data) => {
+          res.json({
+            status: 200,
+            data,
+            message: 'Berita berhasil ditambahkan',
+          });
+        }).catch((error) => {
+          res.status(500).json({
+            status: 500,
+            error: error.message,
+          });
+        });
+      } else {
+        beritaSchema.create({
+          username: req.body.username,
+          id_posisi: req.body.id_posisi,
+          judul: req.body.judul,
+          sub_judul: req.body.sub_judul,
+          youtube: req.body.youtube,
+          judul_seo: req.body.judul_seo,
+          isi_berita: req.body.isi_berita,
+          keterangan_gambar: req.body.keterangan_gambar,
+          tanggal: req.body.tanggal,
+        }).then((data) => {
+          res.json({
+            status: 200,
+            data,
+            message: 'Berita berhasil ditambahkan',
+          });
+        }).catch((error) => {
+          res.status(500).json({
+            status: 500,
+            error: error.message,
+          });
+        });
+      }
     });
   } catch (error) {
     res.status(500).json({
