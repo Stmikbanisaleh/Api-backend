@@ -1,3 +1,4 @@
+/* eslint-disable camelcase */
 const express = require('express');
 const Joi = require('joi');
 const fs = require('fs');
@@ -14,14 +15,6 @@ router.get('/', (req, res) => {
 });
 
 router.post('/addhalaman', checkauth, async (req, res) => {
-  const date = new Date();
-  const name = moment(date).format('hhmmiiss');
-  const base64Data = req.body.gambar_base64;
-  const type = req.body.gambar_type;
-  const name_file = `${req.body.gambar}${name}${type}`;
-  fs.writeFileSync(`./public/file/${req.body.gambar}${name}${type}`, base64Data, 'base64', () => {
-  });
-
   const payload = Joi.object({
     judul: Joi.string().required(),
     judul_seo: Joi.string().required(),
@@ -36,29 +29,55 @@ router.post('/addhalaman', checkauth, async (req, res) => {
     tgl_posting: req.body.tgl_posting,
     username: req.body.username,
   };
-
-
   try {
     Joi.validate(schema, payload, () => {
-      halamanSchema.create({
-        judul: req.body.judul,
-        judul_seo: req.body.judul_seo,
-        isi_halaman: req.body.isi_halaman,
-        tgl_posting: req.body.tgl_posting,
-        gambar: name_file,
-        username: req.body.username,
-      }).then((data) => {
-        res.json({
-          status: 200,
-          data,
-          message: 'Menu berhasil ditambahkan',
+      if (req.body.gambar) {
+        const date = new Date();
+        const name = moment(date).format('hhmmiiss');
+        const base64Data = req.body.gambar_base64;
+        const type = req.body.gambar_type;
+        const name_file = `${req.body.gambar}${name}.${type}`;
+        fs.writeFileSync(`./public/file/${req.body.gambar}${name}.${type}`, base64Data, 'base64', () => {
         });
-      }).catch((error) => {
-        res.status(500).json({
-          status: 500,
-          error: error.message,
+        halamanSchema.create({
+          judul: req.body.judul,
+          judul_seo: req.body.judul_seo,
+          isi_halaman: req.body.isi_halaman,
+          tgl_posting: req.body.tgl_posting,
+          gambar: name_file,
+          username: req.body.username,
+        }).then((data) => {
+          res.json({
+            status: 200,
+            data,
+            message: 'Halaman berhasil ditambahkan',
+          });
+        }).catch((error) => {
+          res.status(500).json({
+            status: 500,
+            error: error.message,
+          });
         });
-      });
+      } else {
+        halamanSchema.create({
+          judul: req.body.judul,
+          judul_seo: req.body.judul_seo,
+          isi_halaman: req.body.isi_halaman,
+          tgl_posting: req.body.tgl_posting,
+          username: req.body.username,
+        }).then((data) => {
+          res.json({
+            status: 200,
+            data,
+            message: 'Halaman berhasil ditambahkan',
+          });
+        }).catch((error) => {
+          res.status(500).json({
+            status: 500,
+            error: error.message,
+          });
+        });
+      }
     });
   } catch (error) {
     res.status(500).json({
@@ -107,4 +126,113 @@ router.post('/gethalaman', checkauth, (req, res) => {
   });
 });
 
+
+router.post('/updatehalaman', checkauth, (req, res) => {
+  const validate = Joi.object().keys({
+    judul: Joi.string().required(),
+    judul_seo: Joi.string().required(),
+    isi_halaman: Joi.string().required(),
+    gambar: Joi.string(),
+  });
+
+  const payload = {
+    judul: req.body.judul,
+    judul_seo: req.body.judul_seo,
+    isi_halaman: req.body.isi_halaman,
+    gambar: req.body.gambar,
+  };
+
+  Joi.validate(payload, validate, () => {
+    if (req.body.gambar) {
+      const date = new Date();
+      const name = moment(date).format('hhmmiiss');
+      const base64Data = req.body.gambar_base64;
+      const type = req.body.gambar_type;
+      const name_file = `${req.body.gambar}${name}.${type}`;
+      fs.writeFileSync(`./public/file/${req.body.gambar}${name}.${type}`, base64Data, 'base64', () => {
+      });
+      halamanSchema.update({
+        judul: req.body.judul,
+        judul_seo: req.body.judul_seo,
+        isi_halaman: req.body.isi_halaman,
+        gambar: name_file,
+      },
+      {
+        where: {
+          id_halaman: req.body.id_halaman,
+        },
+      })
+        .then((data) => {
+          if (data === 1) {
+            res.status(404).json({
+              message: 'Not Found',
+              status: 404,
+            });
+          } else {
+            res.status(200).json({
+              message: 'Update Succesfully',
+              status: 200,
+            });
+          }
+        }).catch((e) => {
+          res.status(500).json({
+            status: 500,
+            messages: e.message,
+          });
+        });
+    } else {
+      halamanSchema.update({
+        judul: req.body.judul,
+        judul_seo: req.body.judul_seo,
+        isi_halaman: req.body.isi_halaman,
+      },
+      {
+        where: {
+          id_halaman: req.body.id_halaman,
+        },
+      })
+        .then((data) => {
+          if (data === 1) {
+            res.status(404).json({
+              message: 'Not Found',
+              status: 404,
+            });
+          } else {
+            res.status(200).json({
+              message: 'Update Succesfully',
+              status: 200,
+            });
+          }
+        }).catch((e) => {
+          res.status(500).json({
+            status: 500,
+            messages: e.message,
+          });
+        });
+    }
+  });
+});
+
+router.post('/gethalamanbyid', checkauth, (req, res) => {
+  halamanSchema.findAndCountAll({
+    where: {
+      id_halaman: req.body.id_halaman,
+    },
+  })
+    .then((data) => {
+      if (data.length < 1) {
+        res.status(404).json({
+          message: 'Not Found',
+        });
+      } else {
+        res.status(200).json(data);
+      }
+    })
+    .catch((err) => {
+      res.status(500).json({
+        error: err,
+        status: 500,
+      });
+    });
+});
 module.exports = router;

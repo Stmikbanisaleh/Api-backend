@@ -30,8 +30,8 @@ const kegiatanmodel = sequelize.define('kegiatan', {
   },
   createdAt: Sequelize.DATE,
   updatedAt: Sequelize.DATE,
-},{
-    freezeTableName: true,
+}, {
+  freezeTableName: true,
 });
 
 // force: true will drop the table if it already exists

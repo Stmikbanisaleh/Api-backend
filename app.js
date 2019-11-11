@@ -22,6 +22,7 @@ const  albumModel = require('./models/album_model');
 const  agendaModel = require('./models/agenda_model');
 const  kegiatanModel = require('./models/kegiatan_model');
 const  beritaModel = require('./models/berita_model');
+const  posisiModel = require('./models/posisi_model');
 
 
 const indexRouter = require('./routes/index');
@@ -38,7 +39,7 @@ const agendaRouter = require('./routes/agenda');
 const kegiatanRouter = require('./routes/kegiatan');
 const beritaRouter = require('./routes/berita');
 const dashboardRouter = require('./routes/dashboard');
-const viewfileRouter = require('./routes/view-file');
+const getRouter = require('./routes/lib/download');
 
 
 const app = express();
@@ -67,7 +68,7 @@ app.use('/agenda', agendaRouter);
 app.use('/kegiatan', kegiatanRouter);
 app.use('/berita', beritaRouter);
 app.use('/dashboard', dashboardRouter);
-app.use('/viewfile', viewfileRouter);
+app.use('/lib/download', getRouter);
 
 
 // catch 404 and forward to error handler
